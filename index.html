@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulso Banxico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a 16:9 "video" stage in brand navy, page around it follows the viewer's theme */
+:root{
+  --navy:#03317A; --navy-deep:#021E4C; --cyan:#00D4D9; --ink-on-navy:#F2F6FC; --muted-on-navy:#9DB2D6;
+  --bg:#EEF2F8; --fg:#13213A; --fg-soft:#55627A; --line:#D3DBE8; --btn:#03317A; --btn-fg:#FFFFFF;
+  --display:"Source Sans 3","Myriad Pro","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0B1220;--fg:#E6ECF5;--fg-soft:#94A3BA;--line:#24324A;--btn:#00D4D9;--btn-fg:#021E4C;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0B1220;--fg:#E6ECF5;--fg-soft:#94A3BA;--line:#24324A;--btn:#00D4D9;--btn-fg:#021E4C;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--display);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 40px}
+.wrap{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.head h1{font-size:1.25rem;margin:0;font-weight:700;text-wrap:balance}
+.head p{margin:0;color:var(--fg-soft);font-size:.9rem}
+
+.stage{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:10px;overflow:hidden;container-type:inline-size;
+  background:radial-gradient(120% 90% at 85% 10%,#0A4BA6 0%,var(--navy) 40%,var(--navy-deep) 100%);color:var(--ink-on-navy)}
+.grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:5cqw 5cqw;mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent)}
+.brand{position:absolute;top:4cqw;left:5cqw;height:3.2cqw;opacity:.95}
+.date-chip{position:absolute;top:4cqw;right:5cqw;font-family:var(--mono);font-size:1.5cqw;color:var(--muted-on-navy);letter-spacing:.06em}
+.scene{position:absolute;inset:0;padding:11cqw 6cqw 12cqw;display:flex;flex-direction:column;justify-content:center;opacity:0;transform:translateY(2cqw);transition:opacity .6s ease,transform .6s ease;pointer-events:none}
+.scene.on{opacity:1;transform:none}
+.eyebrow{font-family:var(--mono);font-size:1.6cqw;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin-bottom:1.6cqw}
+.big{font-weight:800;font-size:11cqw;line-height:.95;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.big small{font-size:3cqw;font-weight:600;color:var(--muted-on-navy);margin-left:1.2cqw;letter-spacing:0}
+.sub{font-size:2.4cqw;color:var(--muted-on-navy);margin-top:1.6cqw}
+.intro .logo{width:44cqw;max-width:100%}
+.intro h2{font-size:5.4cqw;margin:2.5cqw 0 0;font-weight:700;line-height:1.05}
+.intro .rule{height:.35cqw;width:0;background:var(--cyan);margin-top:2.4cqw;transition:width 1.2s .3s ease}
+.intro.on .rule{width:18cqw}
+
+.rates{display:grid;grid-template-columns:repeat(3,1fr);gap:4cqw;align-items:end;height:24cqw;border-bottom:.2cqw solid rgba(255,255,255,.3);position:relative}
+.rate{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.bar{width:60%;height:0;background:linear-gradient(180deg,var(--cyan),#0096B8);border-radius:.6cqw .6cqw 0 0;transition:height 1.4s cubic-bezier(.2,.8,.2,1)}
+.rate .val{font-weight:800;font-size:4.2cqw;margin-bottom:1cqw;font-variant-numeric:tabular-nums}
+.rate-labels{display:grid;grid-template-columns:repeat(3,1fr);gap:4cqw;margin-top:1.4cqw;text-align:center;font-family:var(--mono);font-size:1.5cqw;color:var(--muted-on-navy);letter-spacing:.08em}
+.scale-note{font-family:var(--mono);font-size:1.3cqw;color:var(--muted-on-navy);margin-top:1cqw;text-align:right}
+
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:1.6cqw}
+.summary div{border-top:.3cqw solid var(--cyan);padding-top:1.2cqw}
+.summary span{display:block;font-family:var(--mono);font-size:1.3cqw;color:var(--muted-on-navy);letter-spacing:.06em}
+.summary b{display:block;font-size:3.4cqw;margin-top:.6cqw;font-variant-numeric:tabular-nums}
+.disc{font-size:1.6cqw;color:var(--muted-on-navy);margin-top:3cqw;max-width:70cqw}
+
+.caption{position:absolute;left:6cqw;right:6cqw;bottom:4.2cqw;font-size:2.1cqw;line-height:1.3;color:var(--ink-on-navy);background:rgba(2,20,52,.55);padding:1cqw 1.6cqw;border-left:.4cqw solid var(--cyan);min-height:2.6cqw}
+.prog{position:absolute;left:0;right:0;bottom:0;height:.7cqw;background:rgba(255,255,255,.12)}
+.prog i{display:block;height:100%;width:0;background:var(--cyan)}
+
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button{font:inherit;font-weight:600;font-size:.92rem;padding:8px 16px;border-radius:6px;border:1px solid var(--btn);background:var(--btn);color:var(--btn-fg);cursor:pointer}
+button.ghost{background:transparent;color:var(--fg)}
+button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.chapters{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.chapters button{padding:6px 10px;font-size:.8rem;background:transparent;color:var(--fg-soft);border-color:var(--line)}
+.chapters button[aria-current="true"]{color:var(--fg);border-color:var(--fg)}
+.note{font-size:.85rem;color:var(--fg-soft);line-height:1.5;max-width:68ch;border-top:1px solid var(--line);padding-top:12px}
+@media (prefers-reduced-motion:reduce){.scene,.bar,.intro .rule{transition:none}}
+.head,.note{display:none}
+body{padding-block:0;padding-left:0;padding-right:0;background:transparent}
+.wrap{max-width:none;gap:8px}
+.stage{border-radius:6px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="head">
+    <h1>Pulso Banxico · prototipo de widget</h1>
+    <p>Datos de la microapp al 30/10/2026</p>
+  </div>
+
+  <div class="stage" id="stage" role="img" aria-label="Animación de indicadores financieros de Banco de México">
+    <div class="grid-bg"></div>
+    <img class="brand" src="data:image/png;base64,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" alt="Intranet-IA">
+    <div class="date-chip" id="dateChip"></div>
+
+    <section class="scene intro" data-s="0">
+      <div class="eyebrow">Banco de México · SIE</div>
+      <h2>Indicadores financieros<br>del cierre</h2>
+      <div class="rule"></div>
+    </section>
+
+    <section class="scene" data-s="1">
+      <div class="eyebrow">Tipo de cambio · Dólar FIX</div>
+      <div class="big"><span data-count="usd">0</span><small>MXN por USD</small></div>
+      <div class="sub">Tipo de cambio FIX publicado por Banxico</div>
+    </section>
+
+    <section class="scene" data-s="2">
+      <div class="eyebrow">Tipo de cambio · Euro</div>
+      <div class="big"><span data-count="eur">0</span><small>MXN por EUR</small></div>
+      <div class="sub">Equivalencia del peso frente al euro</div>
+    </section>
+
+    <section class="scene" data-s="3">
+      <div class="eyebrow">Tasas de interés</div>
+      <div class="rates" id="rates"></div>
+      <div class="rate-labels" id="rateLabels"></div>
+      <div class="scale-note">Escala 0–8 %</div>
+    </section>
+
+    <section class="scene" data-s="4">
+      <div class="eyebrow">Resumen</div>
+      <div class="summary" id="summary"></div>
+      <p class="disc" id="disc"></p>
+    </section>
+
+    <div class="caption" id="caption" aria-live="polite"></div>
+    <div class="prog"><i id="progBar"></i></div>
+  </div>
+
+  <div class="controls">
+    <button id="playBtn" type="button">Pausar</button>
+    <button id="restartBtn" class="ghost" type="button">Reiniciar</button>
+    <div class="chapters" id="chapters"></div>
+  </div>
+
+  <p class="note">Las cifras salen del objeto de datos de la microapp; el texto de la franja inferior es el que redactaría Claude cada mes y solo repite esas cifras. Para comentar variaciones (sube o baja frente al mes anterior) la microapp debe consultar también el valor histórico en el SIE.</p>
+</div>
+
+<script>
+/* === Datos: esto es lo que entregaría la microapp (Banxico SIE) === */
+const DATA = {
+  fecha: "30/10/2026",
+  usd: 18.7962, eur: 21.0423,
+  tasas: [ {k:"OBJETIVO", v:6.50}, {k:"CETES 28", v:6.22}, {k:"TIIE 91", v:6.84} ],
+  fuente: "Fuente: Banco de México, SIE (www.banxico.org.mx). Información de carácter informativo; no constituye recomendación de inversión."
+};
+/* === Guion: lo que Claude generaría a partir de DATA (sin cifras propias) === */
+const fmt4 = n => n.toLocaleString("es-MX",{minimumFractionDigits:4,maximumFractionDigits:4});
+const fmt2 = n => n.toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
+const SCRIPT = [
+  {dur:3.5, cap:`Estos son los indicadores de Banco de México al ${DATA.fecha}.`},
+  {dur:4.5, cap:`El dólar FIX se ubicó en $${fmt4(DATA.usd)} pesos.`},
+  {dur:4.5, cap:`El euro cotizó en $${fmt4(DATA.eur)} pesos.`},
+  {dur:5.5, cap:`La tasa objetivo está en ${fmt2(DATA.tasas[0].v)} %; CETES a 28 días en ${fmt2(DATA.tasas[1].v)} % y la TIIE a 91 días en ${fmt2(DATA.tasas[2].v)} %.`},
+  {dur:5,   cap:`Resumen del día. Fuente: Banxico, Sistema de Información Económica.`}
+];
+const NAMES=["Intro","Dólar","Euro","Tasas","Resumen"];
+
+/* Build */
+const $=s=>document.querySelector(s);
+$("#dateChip").textContent = "DATOS AL " + DATA.fecha;
+const MAXR=8;
+$("#rates").innerHTML = DATA.tasas.map(t=>`<div class="rate"><div class="val">${fmt2(t.v)}%</div><div class="bar" data-h="${(t.v/MAXR*100).toFixed(1)}"></div></div>`).join("");
+$("#rateLabels").innerHTML = DATA.tasas.map(t=>`<div>${t.k}</div>`).join("");
+$("#summary").innerHTML = [["DÓLAR FIX","$"+fmt4(DATA.usd)],["EURO","$"+fmt4(DATA.eur)],...DATA.tasas.map(t=>[t.k,fmt2(t.v)+"%"])].map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("");
+$("#disc").textContent = DATA.fuente;
+$("#chapters").innerHTML = NAMES.map((n,i)=>`<button type="button" data-i="${i}">${n}</button>`).join("");
+
+const scenes=[...document.querySelectorAll(".scene")];
+const starts=[];let acc=0;SCRIPT.forEach(s=>{starts.push(acc);acc+=s.dur});const TOTAL=acc;
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let t=0, playing=true, last=performance.now(), cur=-1;
+const ease=x=>1-Math.pow(1-x,3);
+
+function sceneAt(tt){let i=0;for(let k=0;k<starts.length;k++) if(tt>=starts[k]) i=k;return i}
+function show(i){
+  if(i===cur) return; cur=i;
+  scenes.forEach((s,k)=>s.classList.toggle("on",k===i));
+  $("#caption").textContent = SCRIPT[i].cap;
+  document.querySelectorAll(".bar").forEach(b=>b.style.height = i===3 ? b.dataset.h+"%" : "0");
+  document.querySelectorAll("#chapters button").forEach((b,k)=>b.setAttribute("aria-current",k===i));
+}
+function counters(){
+  const local=t-starts[cur];
+  document.querySelectorAll("[data-count]").forEach(el=>{
+    const v=DATA[el.dataset.count]; const p=reduce?1:Math.min(1,local/1.6);
+    el.textContent="$"+fmt4(v*ease(p));
+  });
+}
+function frame(now){
+  const dt=(now-last)/1000; last=now;
+  if(playing){t+=dt; if(t>=TOTAL) t=0;}
+  show(sceneAt(t)); counters();
+  $("#progBar").style.width=(t/TOTAL*100)+"%";
+  requestAnimationFrame(frame);
+}
+$("#playBtn").onclick=()=>{playing=!playing;$("#playBtn").textContent=playing?"Pausar":"Reproducir"};
+$("#restartBtn").onclick=()=>{t=0;cur=-1;playing=true;$("#playBtn").textContent="Pausar"};
+$("#chapters").onclick=e=>{const b=e.target.closest("button");if(!b)return;t=starts[+b.dataset.i]+.01;cur=-1};
+show(0); requestAnimationFrame(frame);
+</script>
+
+</body>
+</html>
