@@ -38,10 +38,10 @@ body{background:var(--bg);color:var(--fg);font-family:var(--display);padding-lef
 .intro .rule{height:.35cqw;width:0;background:var(--cyan);margin-top:2.4cqw;transition:width 1.2s .3s ease}
 .intro.on .rule{width:18cqw}
 
-.rates{display:grid;grid-template-columns:repeat(3,1fr);gap:4cqw;align-items:end;height:24cqw;border-bottom:.2cqw solid rgba(255,255,255,.3);position:relative}
-.rate{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
-.bar{width:60%;height:0;background:linear-gradient(180deg,var(--cyan),#0096B8);border-radius:.6cqw .6cqw 0 0;transition:height 1.4s cubic-bezier(.2,.8,.2,1)}
-.rate .val{font-weight:800;font-size:4.2cqw;margin-bottom:1cqw;font-variant-numeric:tabular-nums}
+.rates{display:grid;grid-template-columns:repeat(3,1fr);gap:4cqw;align-items:end;height:20cqw;margin-top:6cqw;border-bottom:.2cqw solid rgba(255,255,255,.3);position:relative}
+.rate{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.bar{position:relative;flex-shrink:0;width:60%;height:0;background:linear-gradient(180deg,var(--cyan),#0096B8);border-radius:.6cqw .6cqw 0 0;transition:height 1.4s cubic-bezier(.2,.8,.2,1)}
+.rate .val{position:absolute;left:0;right:0;text-align:center;bottom:calc(var(--h,0%) + 1cqw);font-weight:800;font-size:4.2cqw;font-variant-numeric:tabular-nums;transition:bottom 1.4s cubic-bezier(.2,.8,.2,1)}
 .rate-labels{display:grid;grid-template-columns:repeat(3,1fr);gap:4cqw;margin-top:1.4cqw;text-align:center;font-family:var(--mono);font-size:1.5cqw;color:var(--muted-on-navy);letter-spacing:.08em}
 .scale-note{font-family:var(--mono);font-size:1.3cqw;color:var(--muted-on-navy);margin-top:1cqw;text-align:right}
 
@@ -67,7 +67,9 @@ button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .head,.note{display:none}
 body{padding-block:0;padding-left:0;padding-right:0;background:transparent}
 .wrap{max-width:none;gap:8px}
-.stage{border-radius:6px}
+.stage{border-radius:6px;width:min(100%, calc((100vh - 52px) * 16 / 9));margin:0 auto}
+.controls{justify-content:center}
+html,body{overflow:hidden}
 </style>
 </head>
 <body>
@@ -168,7 +170,7 @@ function show(i){
   if(i===cur) return; cur=i;
   scenes.forEach((s,k)=>s.classList.toggle("on",k===i));
   $("#caption").textContent = SCRIPT[i].cap;
-  document.querySelectorAll(".bar").forEach(b=>b.style.height = i===3 ? b.dataset.h+"%" : "0");
+  document.querySelectorAll(".bar").forEach(b=>{const v=i===3?b.dataset.h+"%":"0%";b.style.height=v;b.parentElement.style.setProperty("--h",v)});
   document.querySelectorAll("#chapters button").forEach((b,k)=>b.setAttribute("aria-current",k===i));
 }
 function counters(){
