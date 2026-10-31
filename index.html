@@ -67,7 +67,7 @@ button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .head,.note{display:none}
 body{padding-block:0;padding-left:0;padding-right:0;background:transparent}
 .wrap{max-width:none;gap:8px}
-.stage{border-radius:6px;width:min(100%, calc((100vh - 66px) * 16 / 9));margin:0 auto}
+.stage{border-radius:6px;width:100%;margin:0 auto}
 .controls{justify-content:center;padding-bottom:6px}
 html,body{overflow:hidden}
 </style>
@@ -191,6 +191,15 @@ $("#playBtn").onclick=()=>{playing=!playing;$("#playBtn").textContent=playing?"P
 $("#restartBtn").onclick=()=>{t=0;cur=-1;playing=true;$("#playBtn").textContent="Pausar"};
 $("#chapters").onclick=e=>{const b=e.target.closest("button");if(!b)return;t=starts[+b.dataset.i]+.01;cur=-1};
 show(0); requestAnimationFrame(frame);
+/* Ajusta la animación al alto real del iframe, dejando sitio a los controles */
+function fit(){
+  const st=document.getElementById("stage"), ctr=document.querySelector(".controls");
+  const avail=window.innerHeight - ctr.offsetHeight - 8 - 10;
+  st.style.width=Math.max(200,Math.min(document.documentElement.clientWidth, avail*16/9))+"px";
+}
+addEventListener("resize",fit); fit();
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fit);
+
 </script>
 
 </body>
