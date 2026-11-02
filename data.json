@@ -1,0 +1,31 @@
+{
+  "fecha": "30/10/2026",
+  "usd": 18.7962,
+  "eur": 21.0423,
+  "prev": {
+    "usd": null,
+    "eur": null,
+    "fecha": null
+  },
+  "tasas": [
+    {
+      "k": "OBJETIVO",
+      "v": 6.5,
+      "fecha": "30/10/2026"
+    },
+    {
+      "k": "CETES 28",
+      "v": 6.22,
+      "fecha": "30/10/2026"
+    },
+    {
+      "k": "TIIE 91",
+      "v": 6.84,
+      "fecha": "30/10/2026"
+    }
+  ],
+  "subtitulos": null,
+  "origen_subtitulos": "plantilla",
+  "fuente": "Fuente: Banco de México, SIE (www.banxico.org.mx). Información de carácter informativo; no constituye recomendación de inversión.",
+  "generado": "2026-11-01T00:00:00Z"
+}

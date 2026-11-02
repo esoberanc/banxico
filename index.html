@@ -95,13 +95,13 @@ html,body{overflow:hidden}
     <section class="scene" data-s="1">
       <div class="eyebrow">Tipo de cambio · Dólar FIX</div>
       <div class="big"><span data-count="usd">0</span><small>MXN por USD</small></div>
-      <div class="sub">Tipo de cambio FIX publicado por Banxico</div>
+      <div class="sub" id="subUsd">Tipo de cambio FIX publicado por Banxico</div>
     </section>
 
     <section class="scene" data-s="2">
       <div class="eyebrow">Tipo de cambio · Euro</div>
       <div class="big"><span data-count="eur">0</span><small>MXN por EUR</small></div>
-      <div class="sub">Equivalencia del peso frente al euro</div>
+      <div class="sub" id="subEur">Equivalencia del peso frente al euro</div>
     </section>
 
     <section class="scene" data-s="3">
@@ -131,37 +131,56 @@ html,body{overflow:hidden}
 </div>
 
 <script>
-/* === Datos: esto es lo que entregaría la microapp (Banxico SIE) === */
-const DATA = {
+/* Datos de respaldo: se usan solo si data.json no carga (por ejemplo, al abrir el archivo en local) */
+const RESPALDO = {
   fecha: "30/10/2026",
   usd: 18.7962, eur: 21.0423,
+  prev: {usd: null, eur: null, fecha: null},
   tasas: [ {k:"OBJETIVO", v:6.50}, {k:"CETES 28", v:6.22}, {k:"TIIE 91", v:6.84} ],
+  subtitulos: null,
   fuente: "Fuente: Banco de México, SIE (www.banxico.org.mx). Información de carácter informativo; no constituye recomendación de inversión."
 };
-/* === Guion: lo que Claude generaría a partir de DATA (sin cifras propias) === */
 const fmt4 = n => n.toLocaleString("es-MX",{minimumFractionDigits:4,maximumFractionDigits:4});
 const fmt2 = n => n.toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
-const SCRIPT = [
-  {dur:3.5, cap:`Estos son los indicadores de Banco de México al ${DATA.fecha}.`},
-  {dur:4.5, cap:`El dólar FIX se ubicó en $${fmt4(DATA.usd)} pesos.`},
-  {dur:4.5, cap:`El euro cotizó en $${fmt4(DATA.eur)} pesos.`},
-  {dur:5.5, cap:`La tasa objetivo está en ${fmt2(DATA.tasas[0].v)} %; CETES a 28 días en ${fmt2(DATA.tasas[1].v)} % y la TIIE a 91 días en ${fmt2(DATA.tasas[2].v)} %.`},
-  {dur:5,   cap:`Resumen del día. Fuente: Banxico, Sistema de Información Económica.`}
-];
-const NAMES=["Intro","Dólar","Euro","Tasas","Resumen"];
-
-/* Build */
 const $=s=>document.querySelector(s);
-$("#dateChip").textContent = "DATOS AL " + DATA.fecha;
-const MAXR=8;
-$("#rates").innerHTML = DATA.tasas.map(t=>`<div class="rate"><div class="val">${fmt2(t.v)}%</div><div class="bar" data-h="${(t.v/MAXR*100).toFixed(1)}"></div></div>`).join("");
-$("#rateLabels").innerHTML = DATA.tasas.map(t=>`<div>${t.k}</div>`).join("");
-$("#summary").innerHTML = [["DÓLAR FIX","$"+fmt4(DATA.usd)],["EURO","$"+fmt4(DATA.eur)],...DATA.tasas.map(t=>[t.k,fmt2(t.v)+"%"])].map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("");
-$("#disc").textContent = DATA.fuente;
-$("#chapters").innerHTML = NAMES.map((n,i)=>`<button type="button" data-i="${i}">${n}</button>`).join("");
+const NAMES=["Intro","Dólar","Euro","Tasas","Resumen"];
+const DUR=[3.5,4.5,4.5,5.5,5];
+let DATA, SCRIPT, starts=[], TOTAL=0;
 
+function subtitulosPlantilla(D){
+  return [
+    `Estos son los indicadores de Banco de México al ${D.fecha}.`,
+    `El dólar FIX se ubicó en $${fmt4(D.usd)} pesos.`,
+    `El euro cotizó en $${fmt4(D.eur)} pesos.`,
+    `La tasa objetivo está en ${fmt2(D.tasas[0].v)} %; CETES a 28 días en ${fmt2(D.tasas[1].v)} % y la TIIE a 91 días en ${fmt2(D.tasas[2].v)} %.`,
+    `Resumen del día. Fuente: Banxico, Sistema de Información Económica.`
+  ];
+}
+function variacion(v,p,ref){
+  if(p==null) return null;
+  const d=v-p, s=d>0?"▲ +":d<0?"▼ −":"= ";
+  return `${s}${fmt4(Math.abs(d))} frente al ${ref}`;
+}
+function montar(D){
+  DATA=D;
+  const subs=(Array.isArray(D.subtitulos)&&D.subtitulos.length===5)?D.subtitulos:subtitulosPlantilla(D);
+  SCRIPT=DUR.map((dur,i)=>({dur,cap:subs[i]}));
+  starts=[];TOTAL=0;SCRIPT.forEach(s=>{starts.push(TOTAL);TOTAL+=s.dur});
+  $("#dateChip").textContent = "DATOS AL " + D.fecha;
+  const MAXR=8;
+  $("#rates").innerHTML = D.tasas.map(t=>`<div class="rate"><div class="val">${fmt2(t.v)}%</div><div class="bar" data-h="${(t.v/MAXR*100).toFixed(1)}"></div></div>`).join("");
+  $("#rateLabels").innerHTML = D.tasas.map(t=>`<div>${t.k}</div>`).join("");
+  $("#summary").innerHTML = [["DÓLAR FIX","$"+fmt4(D.usd)],["EURO","$"+fmt4(D.eur)],...D.tasas.map(t=>[t.k,fmt2(t.v)+"%"])].map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("");
+  $("#disc").textContent = D.fuente;
+  const p=D.prev||{};
+  const vu=variacion(D.usd,p.usd,p.fecha), ve=variacion(D.eur,p.eur,p.fecha);
+  if(vu) $("#subUsd").textContent=vu;
+  if(ve) $("#subEur").textContent=ve;
+  cur=-1;
+}
+
+$("#chapters").innerHTML = NAMES.map((n,i)=>`<button type="button" data-i="${i}">${n}</button>`).join("");
 const scenes=[...document.querySelectorAll(".scene")];
-const starts=[];let acc=0;SCRIPT.forEach(s=>{starts.push(acc);acc+=s.dur});const TOTAL=acc;
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 let t=0, playing=true, last=performance.now(), cur=-1;
 const ease=x=>1-Math.pow(1-x,3);
@@ -191,7 +210,14 @@ function frame(now){
 $("#playBtn").onclick=()=>{playing=!playing;$("#playBtn").textContent=playing?"Pausar":"Reproducir"};
 $("#restartBtn").onclick=()=>{t=0;cur=-1;playing=true;$("#playBtn").textContent="Pausar"};
 $("#chapters").onclick=e=>{const b=e.target.closest("button");if(!b)return;t=starts[+b.dataset.i]+.01;cur=-1};
-show(0); requestAnimationFrame(frame);
+
+/* Arranca con el respaldo y, en cuanto llega, cambia a data.json (los datos que publica el GitHub Action) */
+montar(RESPALDO); show(0); requestAnimationFrame(frame);
+fetch("data.json?t="+Date.now(),{cache:"no-store"})
+  .then(r=>{if(!r.ok) throw new Error(r.status); return r.json()})
+  .then(d=>{ if(d&&d.usd&&d.eur&&Array.isArray(d.tasas)&&d.tasas.length===3){ montar(d); t=0; } })
+  .catch(()=>{ /* se queda con el respaldo */ });
+
 /* Ajusta la animación al alto real del iframe, dejando sitio a los controles */
 function fit(){
   const st=document.getElementById("stage"), ctr=document.querySelector(".controls");
@@ -200,7 +226,6 @@ function fit(){
 }
 addEventListener("resize",fit); fit();
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fit);
-
 </script>
 
 </body>
