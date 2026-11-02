@@ -3,29 +3,35 @@
   "usd": 18.7962,
   "eur": 21.0423,
   "prev": {
-    "usd": null,
-    "eur": null,
-    "fecha": null
+    "usd": 18.0692,
+    "eur": 20.5248,
+    "fecha": "30/09/2026"
   },
   "tasas": [
     {
       "k": "OBJETIVO",
       "v": 6.5,
-      "fecha": "30/10/2026"
+      "fecha": "02/11/2026"
     },
     {
       "k": "CETES 28",
       "v": 6.22,
-      "fecha": "30/10/2026"
+      "fecha": "29/10/2026"
     },
     {
       "k": "TIIE 91",
-      "v": 6.84,
+      "v": 6.8236,
       "fecha": "30/10/2026"
     }
   ],
-  "subtitulos": null,
+  "subtitulos": [
+    "Estos son los indicadores de Banco de México al 30/10/2026.",
+    "El dólar FIX se ubicó en $18.7962 pesos. Son 0.7270 pesos más que al cierre de septiembre.",
+    "El euro cotizó en $21.0423 pesos. Son 0.5175 pesos más que al cierre de septiembre.",
+    "La tasa objetivo está en 6.50 %; CETES a 28 días en 6.22 % y la TIIE a 91 días en 6.82 %.",
+    "Resumen del día. Fuente: Banxico, Sistema de Información Económica."
+  ],
   "origen_subtitulos": "plantilla",
   "fuente": "Fuente: Banco de México, SIE (www.banxico.org.mx). Información de carácter informativo; no constituye recomendación de inversión.",
-  "generado": "2026-11-01T00:00:00Z"
+  "generado": "2026-11-02T14:52:52Z"
 }
