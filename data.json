@@ -20,18 +20,18 @@
     },
     {
       "k": "TIIE 91",
-      "v": 6.8236,
-      "fecha": "30/10/2026"
+      "v": 6.8439,
+      "fecha": "03/11/2026"
     }
   ],
   "subtitulos": [
     "Estos son los indicadores de Banco de México al 30/10/2026.",
     "El dólar FIX se ubicó en $18.7962 pesos. Son 0.7270 pesos más que al cierre de septiembre.",
     "El euro cotizó en $21.0423 pesos. Son 0.5175 pesos más que al cierre de septiembre.",
-    "La tasa objetivo está en 6.50 %; CETES a 28 días en 6.22 % y la TIIE a 91 días en 6.82 %.",
+    "La tasa objetivo está en 6.50 %; CETES a 28 días en 6.22 % y la TIIE a 91 días en 6.84 %.",
     "Resumen del día. Fuente: Banxico, Sistema de Información Económica."
   ],
   "origen_subtitulos": "plantilla",
   "fuente": "Fuente: Banco de México, SIE (www.banxico.org.mx). Información de carácter informativo; no constituye recomendación de inversión.",
-  "generado": "2026-11-02T15:06:55Z"
+  "generado": "2026-11-02T15:26:06Z"
 }
