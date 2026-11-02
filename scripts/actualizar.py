@@ -18,8 +18,8 @@ SERIES = {
     "usd":      "SF43718",  # Tipo de cambio FIX, pesos por dólar
     "eur":      "SF46410",  # Tipo de cambio pesos por euro
     "objetivo": "SF61745",  # Tasa objetivo
-    "cetes28":  "SF43936",  # CETES 28 días, tasa de rendimiento
-    "tiie91":   "SF43878",  # TIIE 91 días
+   "cetes28":  "SF60633",  # CETES 28 días (misma serie que la microapp)
+   "tiie91":   "SF60649",  # TIIE 91 días (misma serie que la microapp)
 }
 ETIQUETAS = {"objetivo": "OBJETIVO", "cetes28": "CETES 28", "tiie91": "TIIE 91"}
 MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
