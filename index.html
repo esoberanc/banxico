@@ -71,10 +71,6 @@ body{padding-block:0;padding-left:0;padding-right:0;background:transparent}
 .stage{border-radius:6px;width:100%;margin:0}
 .controls{justify-content:flex-start;padding-bottom:6px}
 html,body{overflow:hidden}
-[hidden]{display:none!important}
-.controls.compact{gap:4px}
-.controls.compact .chapters{gap:4px}
-.controls.compact button{height:28px;padding:0 9px;font-size:.72rem}
 </style>
 </head>
 <body>
@@ -226,13 +222,7 @@ fetch("data.json?t="+Date.now(),{cache:"no-store"})
 function fit(){
   const st=document.getElementById("stage"), ctr=document.querySelector(".controls"), ch=document.getElementById("chapters");
   const W=document.documentElement.clientWidth;
-  ch.hidden=false;
-  /* Siempre se ven todos los botones. Si no caben en una fila, se usa una versión compacta;
-     si aun así no caben, pasan a una segunda fila alineada a la izquierda. */
-  ctr.classList.remove("compact");
-  const top0 = document.getElementById("playBtn").offsetTop;
-  const parte = () => [...ctr.querySelectorAll("button")].some(b => b.offsetTop > top0 + 2);
-  if (parte()) ctr.classList.add("compact");
+  ch.hidden = W < 620;               /* en columnas estrechas, solo Pausar y Reiniciar */
   const avail=window.innerHeight - ctr.offsetHeight - 8 - 10;
   st.style.width=Math.max(200,Math.min(W, avail*16/9))+"px";
 }
