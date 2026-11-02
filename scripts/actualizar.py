@@ -3,7 +3,8 @@
 Actualiza data.json con los indicadores de Banco de México (SIE).
 
 - Consulta las series en la API del SIE (necesita BANXICO_TOKEN).
-- Toma el último dato de cada serie y el último del mes anterior para calcular la variación.
+- Toma el último dato publicado de cada serie (igual que la microapp, endpoint 'oportuno')
+  y el cierre del mes anterior para calcular la variación.
 - Si existe ANTHROPIC_API_KEY, pide a Claude los subtítulos; si no, usa textos de plantilla.
 - Las cifras de pantalla salen siempre de Banxico. Si Claude escribe una cifra que no
   coincide con los datos, se descarta su texto y se usa la plantilla.
@@ -18,8 +19,8 @@ SERIES = {
     "usd":      "SF43718",  # Tipo de cambio FIX, pesos por dólar
     "eur":      "SF46410",  # Tipo de cambio pesos por euro
     "objetivo": "SF61745",  # Tasa objetivo
-   "cetes28":  "SF60633",  # CETES 28 días (misma serie que la microapp)
-   "tiie91":   "SF60649",  # TIIE 91 días (misma serie que la microapp)
+    "cetes28":  "SF60633",  # CETES 28 días (misma serie que la microapp)
+    "tiie91":   "SF60649",  # TIIE 91 días (misma serie que la microapp)
 }
 ETIQUETAS = {"objetivo": "OBJETIVO", "cetes28": "CETES 28", "tiie91": "TIIE 91"}
 MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
@@ -27,6 +28,7 @@ MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
 FUENTE = ("Fuente: Banco de México, SIE (www.banxico.org.mx). Información de carácter "
           "informativo; no constituye recomendación de inversión.")
 SIE = "https://www.banxico.org.mx/SieAPIRest/service/v1/series/{ids}/datos/{ini}/{fin}"
+OPORTUNO = "https://www.banxico.org.mx/SieAPIRest/service/v1/series/{ids}/datos/oportuno"
 SALIDA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data.json")
 MODELO = os.environ.get("CLAUDE_MODEL", "claude-sonnet-5-5")
 
@@ -51,30 +53,37 @@ def fecha(s):
 
 
 def consultar_sie(token, hoy):
+    """Devuelve (oportuno, historico).
+    - oportuno: el último dato publicado de cada serie, igual que la microapp. Algunas series
+      (como la TIIE) se publican con fecha del día siguiente, por eso no se limita a hoy.
+    - historico: el rango de las últimas semanas, para encontrar el cierre del mes anterior."""
+    h = {"Bmx-Token": token, "Accept": "application/json"}
+    ids = ",".join(SERIES.values())
+    oportuno = http_json(OPORTUNO.format(ids=ids), h)
     ini = (hoy.replace(day=1) - timedelta(days=45)).isoformat()
-    url = SIE.format(ids=",".join(SERIES.values()), ini=ini, fin=hoy.isoformat())
-    return http_json(url, {"Bmx-Token": token, "Accept": "application/json"})
+    fin = (hoy + timedelta(days=10)).isoformat()
+    historico = http_json(SIE.format(ids=ids, ini=ini, fin=fin), h)
+    return oportuno, historico
 
 
-def procesar(respuesta, hoy):
-    por_id = {s["idSerie"]: s for s in respuesta["bmx"]["series"]}
-    inicio_mes = hoy.replace(day=1)
+def procesar(oportuno, historico):
+    ult_id = {s["idSerie"]: s for s in oportuno["bmx"]["series"]}
+    his_id = {s["idSerie"]: s for s in historico["bmx"]["series"]}
     out, titulos = {}, {}
     for clave, sid in SERIES.items():
-        serie = por_id.get(sid)
-        if not serie:
+        serie = ult_id.get(sid)
+        if not serie or not serie.get("datos"):
             raise SystemExit(f"La serie {sid} ({clave}) no vino en la respuesta del SIE")
         titulos[clave] = serie.get("titulo", "")
-        datos = [(fecha(d["fecha"]), num(d["dato"])) for d in serie.get("datos", [])]
+        d0 = serie["datos"][-1]
+        ultimo = (fecha(d0["fecha"]), num(d0["dato"]))
+        if ultimo[1] is None:
+            raise SystemExit(f"La serie {sid} ({clave}) no tiene un dato válido ({d0['dato']})")
+        datos = [(fecha(d["fecha"]), num(d["dato"])) for d in his_id.get(sid, {}).get("datos", [])]
         datos = sorted([d for d in datos if d[1] is not None])
-        if not datos:
-            raise SystemExit(f"La serie {sid} ({clave}) no tiene datos en el periodo")
-        ultimo = datos[-1]
-        previos = [d for d in datos if d[0] < inicio_mes]
-        # Si el último dato ya es del mes anterior (primeros días del mes), compara con el mes previo a ese.
-        if ultimo[0] < inicio_mes:
-            ref_mes = ultimo[0].replace(day=1)
-            previos = [d for d in datos if d[0] < ref_mes]
+        # Cierre del mes anterior al del último dato
+        ref_mes = ultimo[0].replace(day=1)
+        previos = [d for d in datos if d[0] < ref_mes]
         prev = previos[-1] if previos else None
         out[clave] = {"v": ultimo[1], "fecha": ultimo[0].strftime("%d/%m/%Y"),
                       "prev": prev[1] if prev else None,
@@ -170,7 +179,7 @@ def main():
     if not token:
         sys.exit("Falta BANXICO_TOKEN")
     hoy = datetime.now(timezone(timedelta(hours=-6))).date()  # hora de CDMX
-    d, titulos = procesar(consultar_sie(token, hoy), hoy)
+    d, titulos = procesar(*consultar_sie(token, hoy))
     for k, t in titulos.items():
         print(f"{SERIES[k]} {k}: {t} -> {d[k]['v']} ({d[k]['fecha']}), mes anterior {d[k]['prev']}")
 
