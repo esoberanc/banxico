@@ -220,9 +220,11 @@ fetch("data.json?t="+Date.now(),{cache:"no-store"})
 
 /* Ajusta la animación al alto real del iframe, dejando sitio a los controles */
 function fit(){
-  const st=document.getElementById("stage"), ctr=document.querySelector(".controls");
+  const st=document.getElementById("stage"), ctr=document.querySelector(".controls"), ch=document.getElementById("chapters");
+  const W=document.documentElement.clientWidth;
+  ch.hidden = W < 620;               /* en columnas estrechas, solo Pausar y Reiniciar */
   const avail=window.innerHeight - ctr.offsetHeight - 8 - 10;
-  st.style.width=Math.max(200,Math.min(document.documentElement.clientWidth, avail*16/9))+"px";
+  st.style.width=Math.max(200,Math.min(W, avail*16/9))+"px";
 }
 addEventListener("resize",fit); fit();
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fit);
