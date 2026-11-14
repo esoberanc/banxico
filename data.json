@@ -1,7 +1,7 @@
 {
-  "fecha": "12/11/2026",
-  "usd": 18.6188,
-  "eur": 20.6548,
+  "fecha": "13/11/2026",
+  "usd": 18.5525,
+  "eur": 20.5085,
   "prev": {
     "usd": 18.7962,
     "eur": 21.0423,
@@ -11,7 +11,7 @@
     {
       "k": "OBJETIVO",
       "v": 6.25,
-      "fecha": "13/11/2026"
+      "fecha": "14/11/2026"
     },
     {
       "k": "CETES 28",
@@ -21,17 +21,17 @@
     {
       "k": "TIIE 91",
       "v": 6.5492,
-      "fecha": "13/11/2026"
+      "fecha": "17/11/2026"
     }
   ],
   "subtitulos": [
-    "Estos son los indicadores de Banco de México al 12/11/2026.",
-    "El dólar FIX se ubicó en $18.6188 pesos. Son 0.1774 pesos menos que al cierre de octubre.",
-    "El euro cotizó en $20.6548 pesos. Son 0.3875 pesos menos que al cierre de octubre.",
+    "Estos son los indicadores de Banco de México al 13/11/2026.",
+    "El dólar FIX se ubicó en $18.5525 pesos. Son 0.2437 pesos menos que al cierre de octubre.",
+    "El euro cotizó en $20.5085 pesos. Son 0.5338 pesos menos que al cierre de octubre.",
     "La tasa objetivo está en 6.25 %; CETES a 28 días en 6.20 % y la TIIE a 91 días en 6.55 %.",
     "Resumen del día. Fuente: Banxico, Sistema de Información Económica."
   ],
   "origen_subtitulos": "plantilla",
   "fuente": "Fuente: Banco de México, SIE (www.banxico.org.mx). Información de carácter informativo; no constituye recomendación de inversión.",
-  "generado": "2026-11-13T00:32:23Z"
+  "generado": "2026-11-14T00:21:54Z"
 }
